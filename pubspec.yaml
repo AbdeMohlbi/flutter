@@ -18,7 +18,6 @@ workspace:
   - packages/flutter_goldens
   - dev/devicelab
   - dev/manual_tests
-  - dev/missing_dependency_tests
   - dev/tracing_tests
   - dev/customer_testing
   - dev/integration_tests/link_hook
