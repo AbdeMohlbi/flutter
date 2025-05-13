@@ -87,8 +87,7 @@ Future<PackageConfig> loadPackageConfigWithLogging(
       if (fileSystem.isFileSync(pubspecPath)) {
         message += '\nDid you run "flutter pub get" in this directory?';
       } else {
-        message +=
-            '\nDid you run this command from the same directory as your pubspec.yaml file? ${StackTrace.current}';
+        message += '\nDid you run this command from the same directory as your pubspec.yaml file?';
       }
       logger.printError(message);
       didError = true;
