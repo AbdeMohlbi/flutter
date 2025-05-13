@@ -33,6 +33,9 @@ File? findPackageConfigFile(Directory dir) {
         .childDirectory('.dart_tool')
         .childFile('package_config.json');
     if (candidatePackageConfigFile.existsSync()) {
+      stderr.writeln(
+        'package_config.json found at $candidatePackageConfigFile! - ${StackTrace.current}',
+      );
       return candidatePackageConfigFile;
     }
     final Directory parentDir = candidateDir.parent;
