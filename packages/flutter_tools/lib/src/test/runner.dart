@@ -217,7 +217,7 @@ interface class FlutterTestRunner {
       flutterToolsPackageConfigFile.uri,
     );
 
-    final List<Package> mergedPackages = <Package>[...projectPackageConfig!.packages];
+    final List<Package> mergedPackages = <Package>[...projectPackageConfig.packages];
     final Set<String> projectPackageNames = Set<String>.from(
       mergedPackages.map((Package p) => p.name),
     );
