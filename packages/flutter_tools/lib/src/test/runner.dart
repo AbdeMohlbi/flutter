@@ -203,7 +203,7 @@ interface class FlutterTestRunner {
     );
 
     if (projectPackageConfig == null) {
-      throwToolExit('Could not find package config for $flutterProject.');
+      throwToolExit('Could not find package config for ${flutterProject.directory.path}.');
     }
 
     // The flutter_tools package_config.json is guaranteed to include
