@@ -194,10 +194,11 @@ interface class FlutterTestRunner {
   // union of package:test_core, package:ffi, and all the dependencies of the
   // project under test. This function generates such a package_config.json.
   static Future<void> _generateIsolateSpawningTesterPackageConfig({
+    required FlutterProject flutterProject,
     required File isolateSpawningTesterPackageConfigFile,
   }) async {
     final File projectPackageConfigFile = globals.fs
-        .directory(globals.fs.path.join(Cache.flutterRoot!))
+        .directory(flutterProject.directory.path)
         .childDirectory('.dart_tool')
         .childFile('package_config.json');
     final PackageConfig projectPackageConfig = PackageConfig.parseBytes(
@@ -237,7 +238,6 @@ interface class FlutterTestRunner {
     required List<String> packageTestArgs,
     required bool autoUpdateGoldenFiles,
     required File childTestIsolateSpawnerSourceFile,
-    required File childTestIsolateSpawnerDillFile,
   }) {
     final Map<String, String> testConfigPaths = <String, String>{};
 
@@ -612,6 +612,7 @@ class SpawnPlugin extends PlatformPlugin {
         .childFile('package_config.json');
     isolateSpawningTesterPackageConfigFile.createSync(recursive: true);
     await _generateIsolateSpawningTesterPackageConfig(
+      flutterProject: flutterProject,
       isolateSpawningTesterPackageConfigFile: isolateSpawningTesterPackageConfigFile,
     );
     final PackageConfig isolateSpawningTesterPackageConfig = PackageConfig.parseBytes(
@@ -657,7 +658,6 @@ class SpawnPlugin extends PlatformPlugin {
       packageTestArgs: packageTestArgs,
       autoUpdateGoldenFiles: updateGoldens,
       childTestIsolateSpawnerSourceFile: childTestIsolateSpawnerSourceFile,
-      childTestIsolateSpawnerDillFile: childTestIsolateSpawnerDillFile,
     );
 
     _generateRootTestIsolateSpawnerSourceFile(
