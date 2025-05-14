@@ -5,6 +5,7 @@
 import 'package:package_config/package_config.dart';
 
 import '../artifacts.dart';
+import '../base/common.dart';
 import '../base/file_system.dart';
 import '../base/io.dart';
 import '../build_info.dart';
@@ -197,14 +198,13 @@ interface class FlutterTestRunner {
     required FlutterProject flutterProject,
     required File isolateSpawningTesterPackageConfigFile,
   }) async {
-    final File projectPackageConfigFile = globals.fs
-        .directory(flutterProject.directory.path)
-        .childDirectory('.dart_tool')
-        .childFile('package_config.json');
-    final PackageConfig projectPackageConfig = PackageConfig.parseBytes(
-      projectPackageConfigFile.readAsBytesSync(),
-      projectPackageConfigFile.uri,
+    final PackageConfig? projectPackageConfig = await findPackageConfig(
+      globals.fs.directory(flutterProject.directory.path),
     );
+
+    if (projectPackageConfig == null) {
+      throwToolExit('Could not find package config for $flutterProject.');
+    }
 
     // The flutter_tools package_config.json is guaranteed to include
     // package:ffi and package:test_core.
@@ -217,7 +217,7 @@ interface class FlutterTestRunner {
       flutterToolsPackageConfigFile.uri,
     );
 
-    final List<Package> mergedPackages = <Package>[...projectPackageConfig.packages];
+    final List<Package> mergedPackages = <Package>[...projectPackageConfig!.packages];
     final Set<String> projectPackageNames = Set<String>.from(
       mergedPackages.map((Package p) => p.name),
     );
@@ -599,15 +599,15 @@ class SpawnPlugin extends PlatformPlugin {
   }) async {
     assert(testFiles.length > 1);
 
-    final String projectPath = flutterProject!.directory.path;
-    final Directory projectDirectory = globals.fs.directory(projectPath);
-    final Directory buildDirectory = projectDirectory.childDirectory(getBuildDirectory());
+    final Directory buildDirectory = globals.fs.directory(
+      globals.fs.path.join(flutterProject!.directory.path, getBuildDirectory()),
+    );
     final Directory isolateSpawningTesterDirectory = buildDirectory.childDirectory(
       'isolate_spawning_tester',
     );
     isolateSpawningTesterDirectory.createSync();
 
-    final File isolateSpawningTesterPackageConfigFile = projectDirectory
+    final File isolateSpawningTesterPackageConfigFile = isolateSpawningTesterDirectory
         .childDirectory('.dart_tool')
         .childFile('package_config.json');
     isolateSpawningTesterPackageConfigFile.createSync(recursive: true);
