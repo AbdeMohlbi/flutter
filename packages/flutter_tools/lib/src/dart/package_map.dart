@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:io' show stderr;
 import 'dart:isolate';
 import 'dart:typed_data';
 
@@ -28,7 +27,6 @@ File? findPackageConfigFile(Directory dir) {
   Directory candidateDir = fileSystem.directory(fileSystem.path.normalize(dir.absolute.path));
 
   while (true) {
-    stderr.writeln('checking $candidateDir for package_config.json');
     final File candidatePackageConfigFile = candidateDir
         .childDirectory('.dart_tool')
         .childFile('package_config.json');
@@ -37,7 +35,6 @@ File? findPackageConfigFile(Directory dir) {
     }
     final Directory parentDir = candidateDir.parent;
     if (fileSystem.path.equals(parentDir.path, candidateDir.path)) {
-      stderr.writeln('no package_config.json found - ${StackTrace.current}');
       return null;
     }
     candidateDir = parentDir;
@@ -87,8 +84,7 @@ Future<PackageConfig> loadPackageConfigWithLogging(
       if (fileSystem.isFileSync(pubspecPath)) {
         message += '\nDid you run "flutter pub get" in this directory?';
       } else {
-        message +=
-            '\nDid you run this command from the same directory as your pubspec.yaml file? ${StackTrace.current}';
+        message += '\nDid you run this command from the same directory as your pubspec.yaml file?';
       }
       logger.printError(message);
       didError = true;
