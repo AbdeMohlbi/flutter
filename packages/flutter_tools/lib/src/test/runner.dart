@@ -198,9 +198,21 @@ interface class FlutterTestRunner {
     required FlutterProject flutterProject,
     required File isolateSpawningTesterPackageConfigFile,
   }) async {
-    final PackageConfig? projectPackageConfig = await findPackageConfig(
-      globals.fs.directory(flutterProject.directory.path),
-    );
+    final File packageConfigFile = globals.fs
+        .directory(flutterProject.directory.path)
+        .childDirectory('.dart_tool')
+        .childFile('package_config.json');
+    PackageConfig? projectPackageConfig;
+    if (await packageConfigFile.exists()) {
+      projectPackageConfig = PackageConfig.parseBytes(
+        packageConfigFile.readAsBytesSync(),
+        Uri.file(flutterProject.directory.path),
+      );
+    } else {
+      projectPackageConfig = await findPackageConfig(
+        globals.fs.directory(flutterProject.directory.path),
+      );
+    }
 
     if (projectPackageConfig == null) {
       throwToolExit('Could not find package config for ${flutterProject.directory.path}.');
