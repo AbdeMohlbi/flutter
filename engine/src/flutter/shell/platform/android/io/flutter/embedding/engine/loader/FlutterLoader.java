@@ -188,97 +188,94 @@ public class FlutterLoader {
 
       // Use a background thread for initialization tasks that require disk access.
       Callable<InitResult> initTask =
-          new Callable<InitResult>() {
-            @Override
-            public InitResult call() {
-              try (TraceSection e = TraceSection.scoped("FlutterLoader initTask")) {
-                ResourceExtractor resourceExtractor = initResources(appContext);
+          () -> {
+            try (TraceSection e1 = TraceSection.scoped("FlutterLoader initTask")) {
+              ResourceExtractor resourceExtractor = initResources(appContext);
 
-                try {
-                  flutterJNI.loadLibrary(appContext);
-                } catch (UnsatisfiedLinkError unsatisfiedLinkError) {
-                  String couldntFindVersion = "couldn't find \"libflutter.so\"";
-                  String notFoundVersion = "dlopen failed: library \"libflutter.so\" not found";
+              try {
+                flutterJNI.loadLibrary(appContext);
+              } catch (UnsatisfiedLinkError unsatisfiedLinkError) {
+                String couldntFindVersion = "couldn't find \"libflutter.so\"";
+                String notFoundVersion = "dlopen failed: library \"libflutter.so\" not found";
 
-                  if (unsatisfiedLinkError.toString().contains(couldntFindVersion)
-                      || unsatisfiedLinkError.toString().contains(notFoundVersion)) {
-                    // To gather more information for
-                    // https://github.com/flutter/flutter/issues/144291,
-                    // log the contents of the native libraries directory as well as the
-                    // cpu architecture.
+                if (unsatisfiedLinkError.toString().contains(couldntFindVersion)
+                    || unsatisfiedLinkError.toString().contains(notFoundVersion)) {
+                  // To gather more information for
+                  // https://github.com/flutter/flutter/issues/144291,
+                  // log the contents of the native libraries directory as well as the
+                  // cpu architecture.
 
-                    String cpuArch = System.getProperty("os.arch");
-                    File nativeLibsDir = getFileFromPath(flutterApplicationInfo.nativeLibraryDir);
-                    String[] nativeLibsContents = nativeLibsDir.list();
+                  String cpuArch = System.getProperty("os.arch");
+                  File nativeLibsDir = getFileFromPath(flutterApplicationInfo.nativeLibraryDir);
+                  String[] nativeLibsContents = nativeLibsDir.list();
 
-                    // To gather more information for
-                    // https://github.com/flutter/flutter/issues/151638,
-                    // log the contents of the split libraries directory as well.
+                  // To gather more information for
+                  // https://github.com/flutter/flutter/issues/151638,
+                  // log the contents of the split libraries directory as well.
 
-                    List<String> splitAndSourceDirs = new ArrayList<>();
-                    // Get supported ABI and prepare path suffix for lib directories
-                    String[] abis = Build.SUPPORTED_ABIS;
-                    for (String abi : abis) {
-                      String libPathSuffix = "!" + File.separator + "lib" + File.separator + abi;
+                  List<String> splitAndSourceDirs = new ArrayList<>();
+                  // Get supported ABI and prepare path suffix for lib directories
+                  String[] abis = Build.SUPPORTED_ABIS;
+                  for (String abi : abis) {
+                    String libPathSuffix = "!" + File.separator + "lib" + File.separator + abi;
 
-                      // Get split APK lib paths
-                      String[] splitSourceDirs = appContext.getApplicationInfo().splitSourceDirs;
-                      List<String> splitLibPaths = new ArrayList<>();
-                      if (splitSourceDirs != null) {
-                        for (String splitSourceDir : splitSourceDirs) {
-                          splitLibPaths.add(splitSourceDir + libPathSuffix);
-                        }
-                        splitAndSourceDirs.addAll(splitLibPaths);
+                    // Get split APK lib paths
+                    String[] splitSourceDirs = appContext.getApplicationInfo().splitSourceDirs;
+                    List<String> splitLibPaths = new ArrayList<>();
+                    if (splitSourceDirs != null) {
+                      for (String splitSourceDir : splitSourceDirs) {
+                        splitLibPaths.add(splitSourceDir + libPathSuffix);
                       }
-
-                      String baseApkPath = appContext.getApplicationInfo().sourceDir;
-                      if (baseApkPath != null && !baseApkPath.isEmpty()) {
-                        String baseApkLibDir = baseApkPath + libPathSuffix;
-                        splitAndSourceDirs.add(baseApkLibDir);
-                      }
+                      splitAndSourceDirs.addAll(splitLibPaths);
                     }
 
-                    throw new UnsupportedOperationException(
-                        "Could not load libflutter.so this is possibly because the application"
-                            + " is running on an architecture that Flutter Android does not support (e.g. x86)"
-                            + " see https://docs.flutter.dev/deployment/android#what-are-the-supported-target-architectures"
-                            + " for more detail.\n"
-                            + "App is using cpu architecture: "
-                            + cpuArch
-                            + ", and the native libraries directory (with path "
-                            + nativeLibsDir.getAbsolutePath()
-                            + ") "
-                            + (nativeLibsDir.exists()
-                                ? "contains the following files: "
-                                    + Arrays.toString(nativeLibsContents)
-                                : "does not exist")
-                            + (splitAndSourceDirs.isEmpty()
-                                ? ""
-                                : ", and the split and source libraries directory (with path(s) "
-                                    + splitAndSourceDirs
-                                    + ")")
-                            + ".",
-                        unsatisfiedLinkError);
+                    String baseApkPath = appContext.getApplicationInfo().sourceDir;
+                    if (baseApkPath != null && !baseApkPath.isEmpty()) {
+                      String baseApkLibDir = baseApkPath + libPathSuffix;
+                      splitAndSourceDirs.add(baseApkLibDir);
+                    }
                   }
 
-                  throw unsatisfiedLinkError;
+                  throw new UnsupportedOperationException(
+                      "Could not load libflutter.so this is possibly because the application"
+                          + " is running on an architecture that Flutter Android does not support (e.g. x86)"
+                          + " see https://docs.flutter.dev/deployment/android#what-are-the-supported-target-architectures"
+                          + " for more detail.\n"
+                          + "App is using cpu architecture: "
+                          + cpuArch
+                          + ", and the native libraries directory (with path "
+                          + nativeLibsDir.getAbsolutePath()
+                          + ") "
+                          + (nativeLibsDir.exists()
+                              ? "contains the following files: "
+                                  + Arrays.toString(nativeLibsContents)
+                              : "does not exist")
+                          + (splitAndSourceDirs.isEmpty()
+                              ? ""
+                              : ", and the split and source libraries directory (with path(s) "
+                                  + splitAndSourceDirs
+                                  + ")")
+                          + ".",
+                      unsatisfiedLinkError);
                 }
 
-                flutterJNI.updateRefreshRate();
-
-                // Prefetch the default font manager as soon as possible on a background thread.
-                // It helps to reduce time cost of engine setup that blocks the platform thread.
-                executorService.execute(() -> flutterJNI.prefetchDefaultFontManager());
-
-                if (resourceExtractor != null) {
-                  resourceExtractor.waitForCompletion();
-                }
-
-                return new InitResult(
-                    PathUtils.getFilesDir(appContext),
-                    PathUtils.getCacheDirectory(appContext),
-                    PathUtils.getDataDirectory(appContext));
+                throw unsatisfiedLinkError;
               }
+
+              flutterJNI.updateRefreshRate();
+
+              // Prefetch the default font manager as soon as possible on a background thread.
+              // It helps to reduce time cost of engine setup that blocks the platform thread.
+              executorService.execute(() -> flutterJNI.prefetchDefaultFontManager());
+
+              if (resourceExtractor != null) {
+                resourceExtractor.waitForCompletion();
+              }
+
+              return new InitResult(
+                  PathUtils.getFilesDir(appContext),
+                  PathUtils.getCacheDirectory(appContext),
+                  PathUtils.getDataDirectory(appContext));
             }
           };
       initResultFuture = executorService.submit(initTask);
@@ -464,7 +461,7 @@ public class FlutterLoader {
           result.appStoragePath,
           result.engineCachesPath,
           initTimeMillis,
-          Integer.valueOf(android.os.Build.VERSION.SDK_INT));
+          Build.VERSION.SDK_INT);
 
       initialized = true;
     } catch (Exception e) {
