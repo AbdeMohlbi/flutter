@@ -4,8 +4,6 @@
 
 package io.flutter.embedding.engine.mutatorsstack;
 
-import static android.view.View.OnFocusChangeListener;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -75,12 +73,8 @@ public class FlutterMutatorView extends FrameLayout {
     final ViewTreeObserver observer = getViewTreeObserver();
     if (observer.isAlive() && activeFocusListener == null) {
       activeFocusListener =
-          new ViewTreeObserver.OnGlobalFocusChangeListener() {
-            @Override
-            public void onGlobalFocusChanged(View oldFocus, View newFocus) {
+          (oldFocus, newFocus) ->
               userFocusListener.onFocusChange(mutatorView, ViewUtils.childHasFocus(mutatorView));
-            }
-          };
       observer.addOnGlobalFocusChangeListener(activeFocusListener);
     }
   }
