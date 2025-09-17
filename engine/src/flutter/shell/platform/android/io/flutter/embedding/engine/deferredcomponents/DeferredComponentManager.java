@@ -45,7 +45,7 @@ public interface DeferredComponentManager {
    * is fully initialized, this method should be called to provide the FlutterJNI instance to use
    * for use in loadDartLibrary and loadAssets.
    */
-  public abstract void setJNI(FlutterJNI flutterJNI);
+  void setJNI(FlutterJNI flutterJNI);
 
   /**
    * Sets the DeferredComponentChannel system channel to handle the framework API to directly call
@@ -66,7 +66,7 @@ public interface DeferredComponentManager {
    * DeferredComponentChannel.completeInstallSuccess} while errors and failures should call {@link
    * DeferredComponentChannel.completeInstallError}.
    */
-  public abstract void setDeferredComponentChannel(DeferredComponentChannel channel);
+  void setDeferredComponentChannel(DeferredComponentChannel channel);
 
   /**
    * Request that the deferred component be downloaded and installed.
@@ -121,7 +121,7 @@ public interface DeferredComponentManager {
    *     an associated Dart deferred library, loading unit id should a negative value and
    *     componentName must be non-null.
    */
-  public abstract void installDeferredComponent(int loadingUnitId, String componentName);
+  void installDeferredComponent(int loadingUnitId, String componentName);
 
   /**
    * Gets the current state of the installation session corresponding to the specified loadingUnitId
@@ -156,7 +156,7 @@ public interface DeferredComponentManager {
    * @param loadingUnitId The unique identifier associated with a Dart deferred library.
    * @param componentName The deferred component name as defined in bundle_config.yaml.
    */
-  public abstract String getDeferredComponentInstallState(int loadingUnitId, String componentName);
+  String getDeferredComponentInstallState(int loadingUnitId, String componentName);
 
   /**
    * Extract and load any assets and resources from the deferred component for use by Flutter.
@@ -178,7 +178,7 @@ public interface DeferredComponentManager {
    * @param loadingUnitId The unique identifier associated with a Dart deferred library.
    * @param componentName The deferred component name as defined in bundle_config.yaml.
    */
-  public abstract void loadAssets(int loadingUnitId, String componentName);
+  void loadAssets(int loadingUnitId, String componentName);
 
   /**
    * Load the .so shared library file into the Dart VM.
@@ -205,7 +205,7 @@ public interface DeferredComponentManager {
    *     Play Store deferred component delivery, this name corresponds to the root name on the
    *     installed APKs in which to search for the desired shared library .so file.
    */
-  public abstract void loadDartLibrary(int loadingUnitId, String componentName);
+  void loadDartLibrary(int loadingUnitId, String componentName);
 
   /**
    * Request that the specified component be uninstalled.
@@ -229,10 +229,10 @@ public interface DeferredComponentManager {
    * @param loadingUnitId The unique identifier associated with a Dart deferred library.
    * @param componentName The deferred component name as defined in bundle_config.yaml.
    */
-  public abstract boolean uninstallDeferredComponent(int loadingUnitId, String componentName);
+  boolean uninstallDeferredComponent(int loadingUnitId, String componentName);
 
   /**
    * Cleans up and releases resources. This object is no longer usable after calling this method.
    */
-  public abstract void destroy();
+  void destroy();
 }
