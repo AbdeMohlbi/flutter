@@ -39,7 +39,7 @@ object DeepLinkJsonFromManifestTaskHelper {
     fun createAppLinkSettingsFile(
         applicationId: String,
         manifestFile: RegularFileProperty,
-        deepLinkJson: RegularFileProperty
+        deepLinkJson: RegularFileProperty,
     ) {
         val appLinkSettings = createAppLinkSettings(applicationId, manifestFile.get().asFile)
         deepLinkJson.get().asFile.writeText(appLinkSettings.toJson().toString())
@@ -55,7 +55,7 @@ object DeepLinkJsonFromManifestTaskHelper {
     @VisibleForTesting
     fun createAppLinkSettings(
         applicationId: String,
-        manifestFile: File
+        manifestFile: File,
     ): AppLinkSettings {
         val appLinkSettings = AppLinkSettings(applicationId)
         val manifest: Node =
@@ -131,7 +131,7 @@ object DeepLinkJsonFromManifestTaskHelper {
                             // All path patterns add to paths.
                             "android:pathAdvancedPattern" ->
                                 paths.add(
-                                    entry.value.toString()
+                                    entry.value.toString(),
                                 )
 
                             "android:pathPattern" -> paths.add(entry.value.toString())
@@ -160,8 +160,8 @@ object DeepLinkJsonFromManifestTaskHelper {
                                         scheme,
                                         host,
                                         path,
-                                        intentFilterCheck
-                                    )
+                                        intentFilterCheck,
+                                    ),
                                 )
                             }
                         }
