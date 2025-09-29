@@ -23,7 +23,7 @@ object FlutterTaskHelper {
 
     internal fun getAssets(
         project: Project,
-        flutterTask: FlutterTask
+        flutterTask: FlutterTask,
     ): CopySpec =
         project.copySpec {
             from("${flutterTask.intermediateDir}")
@@ -32,7 +32,7 @@ object FlutterTaskHelper {
 
     internal fun getSnapshots(
         project: Project,
-        flutterTask: FlutterTask
+        flutterTask: FlutterTask,
     ): CopySpec =
         project.copySpec {
             from("${flutterTask.intermediateDir}")
@@ -46,7 +46,7 @@ object FlutterTaskHelper {
     private fun readDependencies(
         project: Project,
         dependenciesFile: File,
-        inputs: Boolean
+        inputs: Boolean,
     ): FileCollection {
         if (dependenciesFile.exists()) {
             // Dependencies file has Makefile syntax:
@@ -66,7 +66,7 @@ object FlutterTaskHelper {
 
     internal fun getSourceFiles(
         project: Project,
-        flutterTask: FlutterTask
+        flutterTask: FlutterTask,
     ): FileCollection {
         var sources: FileCollection = project.files()
         flutterTask.getDependenciesFiles().forEach { dependenciesFile ->
@@ -77,7 +77,7 @@ object FlutterTaskHelper {
 
     internal fun getOutputFiles(
         project: Project,
-        flutterTask: FlutterTask
+        flutterTask: FlutterTask,
     ): FileCollection {
         var outputs: FileCollection = project.files()
         flutterTask.getDependenciesFiles().forEach { dependenciesFile ->
