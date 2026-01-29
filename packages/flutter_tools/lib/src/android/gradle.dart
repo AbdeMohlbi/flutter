@@ -277,7 +277,7 @@ class AndroidGradleBuilder implements AndroidBuilder {
     int? maxRetries,
     _OutputParser? outputParser,
   }) async {
-    final bool usesAndroidX = isAppUsingAndroidX(project.android.hostAppGradleRoot);
+    final bool usesAndroidX = project.android.usesAndroidX;
     final String? agpVersion = gradle.getAgpVersion(
       project.android.hostAppGradleRoot,
       globals.logger,
@@ -399,6 +399,27 @@ class AndroidGradleBuilder implements AndroidBuilder {
             );
             if (exitCode == 0) {
               final successEventLabel = 'gradle-${detectedGradleError!.eventLabel}-success';
+              _analytics.send(
+                Event.flutterBuildInfo(
+                  label: successEventLabel,
+                  buildType: 'gradle',
+                  settings: 'androidGradlePluginVersion: $agpVersion',
+                ),
+              );
+              project.isModule;
+              agpVersion;
+              final String? javaVersion = versionToParsableString(globals.java?.version);
+              final String? kgpVersion = await gradle.getKgpVersion(
+                project.android.hostAppGradleRoot,
+                globals.logger,
+                globals.processManager,
+              );
+              final String? gradleVersion = await gradle.getGradleVersion(
+                project.android.hostAppGradleRoot,
+                globals.logger,
+                globals.processManager,
+              );
+
               _analytics.send(
                 Event.flutterBuildInfo(
                   label: successEventLabel,
@@ -1084,13 +1105,13 @@ void _exitWithUnsupportedProjectMessage(Terminal terminal, Analytics analytics) 
 /// Returns `true` if the current app uses AndroidX.
 // TODO(egarciad): https://github.com/flutter/flutter/issues/40800
 // Remove `FlutterManifest.usesAndroidX` and provide a unified `AndroidProject.usesAndroidX`.
-bool isAppUsingAndroidX(Directory androidDirectory) {
-  final File properties = androidDirectory.childFile('gradle.properties');
-  if (!properties.existsSync()) {
-    return false;
-  }
-  return properties.readAsStringSync().contains('android.useAndroidX=true');
-}
+// bool isAppUsingAndroidX(Directory androidDirectory) {
+//   final File properties = androidDirectory.childFile('gradle.properties');
+//   if (!properties.existsSync()) {
+//     return false;
+//   }
+//   return properties.readAsStringSync().contains('android.useAndroidX=true');
+// }
 
 /// Returns the APK files for a given [FlutterProject] and [AndroidBuildInfo].
 @visibleForTesting
