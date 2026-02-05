@@ -406,6 +406,27 @@ class AndroidGradleBuilder implements AndroidBuilder {
                   settings: 'androidGradlePluginVersion: $agpVersion',
                 ),
               );
+              final gradleVersion = gradle.getGradleVersion(
+                project.android.hostAppGradleRoot,
+                globals.logger,
+                globals.processManager,
+              );
+              final minsdk = null; //minsdk;
+              final targetSDK = null; //23;
+              final compilesdk = null; //23;
+              final ndkVersion = null; //"28.0.13004108";
+              _analytics.send(
+                Event.flutterTrackAndroidDependencies(
+                  isModule: project.isModule,
+                  agpVersion: agpVersion,
+                  minSDK: minsdk,
+                  targetSDK: targetSDK,
+                  compileSDK: compilesdk,
+                  jdkVersion: globals.java,
+                  ndkVersion: ndkVersion,
+                  gradleVersion: gradleVersion,
+                ),
+              );
               return exitCode;
             }
           case GradleBuildStatus.exit:
