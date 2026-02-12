@@ -66,7 +66,7 @@ class RawKeyEventDataWindows extends RawKeyEventData {
 
   /// A mask of the current modifiers. The modifier values must be in sync with
   /// the Windows embedder. See:
-  /// https://github.com/flutter/engine/blob/7667c8a12ce6bc2d8dd538845add0a4e1a575bfd/shell/platform/windows/keyboard_key_channel_handler.cc#L44
+  /// https://github.com/flutter/flutter/blob/ef08da678c6c33fa06c4abd57b6b95b608b2600f/engine/src/flutter/shell/platform/windows/keyboard_key_channel_handler.cc#L44
   final int modifiers;
 
   @override
